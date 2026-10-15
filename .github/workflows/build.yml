@@ -1,7 +1,7 @@
 name: build
 
 # Every push to main is checked and built for Linux.
-# When the commit message names a version (labtohub "gittohub v1.2.3"), the build is published as release v1.2.3.
+# When the commit message's first line names a version (like "V1.2.3"), the build is published as release v1.2.3.
 on:
   push:
     branches: [main]
@@ -31,7 +31,8 @@ jobs:
           MESSAGE: ${{ github.event.head_commit.message }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          version="$(head -n 1 <<< "$MESSAGE" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' | head -n 1 || true)"
+          # V1.2.3 is accepted too, but tagged v1.2.3 because Go only reads lowercase version tags
+          version="$(head -n 1 <<< "$MESSAGE" | grep -oE '[vV][0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' | head -n 1 | sed 's/^V/v/' || true)"
           for arch in amd64 arm64; do
             CGO_ENABLED=0 GOARCH="$arch" go build -trimpath -ldflags "-s -w -X main.version=${version:-dev}" -o tasks ./cmd/tasks
             tar -czf "tasks-linux-$arch.tar.gz" tasks config.example.toml
