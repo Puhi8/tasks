@@ -9,7 +9,7 @@ A keyboard-driven terminal editor for your [Tasks.org](https://tasks.org) tasks.
 
 ## Install
 
-Linux and macOS (x86-64 and ARM), using the install script attached to every release:
+Linux (x86-64 and ARM), using the install script attached to every release:
 
 ```sh
 curl -fsSL https://github.com/puhi8/tasks/releases/latest/download/install.sh | sh
