@@ -1,0 +1,5 @@
+/tasks
+/config.toml
+/.claude/settings.local.json
+/build/
+/dist/

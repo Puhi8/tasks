@@ -1,0 +1,68 @@
+name: release
+
+# Pushing a tag like v1.2.3 tests the app on Linux and macOS, builds it and publishes it as a GitHub release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # always the newest Go release, so builds include its security fixes (go.mod only sets the minimum)
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Vet
+        run: go vet ./...
+
+      # the program has to start and create its database on every system it is released for
+      - name: Smoke test
+        run: |
+          go build -o tasks ./cmd/tasks
+          ./tasks --version
+          printf '[storage]\ndatabase = "%s/tasks.db"\n' "$RUNNER_TEMP" > "$RUNNER_TEMP/config.toml"
+          if ./tasks --config "$RUNNER_TEMP/config.toml" --sync; then
+            echo "--sync without a server should fail"
+            exit 1
+          fi
+          test -f "$RUNNER_TEMP/tasks.db"
+
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Build
+        run: |
+          mkdir dist
+          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64; do
+            os="${target%/*}"
+            arch="${target#*/}"
+            mkdir -p "build/$os-$arch"
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -trimpath -ldflags "-s -w -X main.version=$GITHUB_REF_NAME" -o "build/$os-$arch/tasks" ./cmd/tasks
+            cp config.example.toml "build/$os-$arch/"
+            tar -czf "dist/tasks-$os-$arch.tar.gz" -C "build/$os-$arch" .
+          done
+          (cd dist && sha256sum *.tar.gz > checksums.txt)
+          # the install script attached to the release downloads from this repository
+          sed "s|__REPOSITORY__|$GITHUB_REPOSITORY|" install.sh > dist/install.sh
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --generate-notes

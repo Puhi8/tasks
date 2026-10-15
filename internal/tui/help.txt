@@ -1,0 +1,39 @@
+  # Keys
+
+  `j/k ↑/↓`    move              `enter`    edit, or resolve a conflict
+  `g/G`        first / last      `a`        add task
+  `ctrl+d/u`   page down / up    `A`        add subtask
+  `/`          search            `x/space`  toggle completed
+  `esc`        clear search      `d`        delete (with subtasks)
+  `f`          filter            `u`        undo last delete
+  `t`          filter by tag     `>/<`      indent / outdent
+  `l`          switch list       `p`        move under another task
+  `h`          show completed    `m`        move to another list
+  `s`          sync              `o`        sort: importance / manual
+  `tab`        fold subtasks     `n`        show descriptions
+  `?`          this help         `q`        quit (also esc esc, ctrl+c)
+
+  # Markers
+  `*` changed here   `+` not uploaded yet   `!` conflict   `▸ 2` folded
+  `[◷]` due date   `[▷]` only a start date   `[x]` done   `↻` repeats
+  Checkbox color is the priority: gray none, blue low, yellow medium, red high
+
+  # Editing
+  `esc` saves and closes; if something is invalid, a second `esc` discards
+  Deleting always asks first: `d` on a task, in the tag list or list switcher
+
+  # Tags
+  In the tag list (`t`): `c` color (synced), `C` automatic, `d` delete the tag
+  Search and the Tags field offer known tags: `tab` completes, `↑/↓` choose
+
+  # Search and filters
+  Words match title and notes, `#name` matches a tag. Filters can be typed:
+  `status:`open|completed  `due:`overdue|today|soon|none  `list:`name
+  `priority:`high|medium|low|none
+
+  # Screen
+  100+ columns wide: the selected task shows on the right, `enter` edits it
+  Mouse: click selects, again opens, `[ ]` toggles, the wheel scrolls
+  Hold `shift` to select text with the mouse
+
+  `j/k` scroll · any other key closes

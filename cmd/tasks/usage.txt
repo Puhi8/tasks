@@ -1,0 +1,16 @@
+  # tasks
+  A terminal editor for Tasks.org tasks, synced with a CalDAV server such as Radicale.
+
+  # Usage
+  `tasks`                   open all lists
+  `tasks --list NAME`       open the list with this name
+  `tasks --sync`            sync once and exit
+  `tasks --config FILE`     use another config file (default ~/.config/tasks-tui/config.toml)
+  `tasks --version`         print the installed version
+  `tasks --help`            this help
+
+  # Config
+  Without a [server] section the app runs local-only. See config.example.toml.
+  The password comes from `password_command` in the config or the `TASKS_TUI_PASSWORD` variable.
+
+  Inside the app press `?` for the keys.

@@ -1,0 +1,31 @@
+# Example config for tasks-tui.
+# Copy it to ~/.config/tasks-tui/config.toml (or pass --config path/to/file.toml).
+# Every setting is optional; without a [server] section the app runs local-only.
+
+[server]
+# CalDAV server root; the task lists are discovered from here.
+url = "https://dav.example.com/"
+username = "alice"
+# Command that prints the password. It is never stored in this file.
+# Setting the TASKS_TUI_PASSWORD environment variable overrides it.
+password_command = "pass show dav.example.com"
+# password_command = "secret-tool lookup service dav.example.com"
+
+[storage]
+# Local SQLite copy used for offline work.
+database = "~/.local/share/tasks-tui/tasks.db"
+
+[sync]
+# Sync in the background when the app starts.
+sync_on_start = true
+# Upload pending local changes when quitting.
+sync_on_exit = true
+# Sync in the background every N minutes and upload local changes about 10 seconds after they are made; 0 turns it off.
+interval_minutes = 5
+
+[ui]
+# Color for titles and the keys in the help: "#rrggbb" or a terminal color number 0-255.
+# Leave it out for the default violet, which adapts to light and dark terminals.
+accent = "#a78bfa"
+# Show each task's description as a gray line under it (n toggles it in the app).
+show_descriptions = false
