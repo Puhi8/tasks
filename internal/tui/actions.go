@@ -60,7 +60,6 @@ func (model *Model) toggleCompleted(selected task.Task) {
 	}
 }
 
-// deleted rows stay until the deletion is synced, so u can restore them
 func (model *Model) deleteTask(selected task.Task) {
 	doomed := task.Subtree(model.tasks, selected)
 	if model.hasConflict(doomed) {
@@ -71,18 +70,26 @@ func (model *Model) deleteTask(selected task.Task) {
 		question = fmt.Sprintf("Delete “%s” and its %d subtask(s)?", selected.Summary, len(doomed)-1)
 	}
 	model.askConfirm(question, func() {
-		model.lastDeleted = nil
-		for _, current := range doomed {
-			current.Deleted = true
-			if err := model.database.SaveLocal(current); err != nil {
-				model.message = "delete failed: " + err.Error()
-				break
-			}
-			model.lastDeleted = append(model.lastDeleted, current.Path)
-		}
+		err := model.markDeleted(doomed)
 		model.reload()
 		model.message = fmt.Sprintf("deleted %d task(s), u to undo", len(model.lastDeleted))
+		if err != nil {
+			model.message = "delete failed: " + err.Error()
+		}
 	})
+}
+
+// deleted rows stay until the deletion is synced, so u can restore them
+func (model *Model) markDeleted(doomed []task.Task) error {
+	model.lastDeleted = nil
+	for _, current := range doomed {
+		current.Deleted = true
+		if err := model.database.SaveLocal(current); err != nil {
+			return err
+		}
+		model.lastDeleted = append(model.lastDeleted, current.Path)
+	}
+	return nil
 }
 
 func (model *Model) deleteTag(tag string) {
@@ -155,7 +162,8 @@ func (model *Model) indent(selected task.Task) {
 		if above.note != "" {
 			continue
 		}
-		if above.header != "" || above.depth < depth {
+		// the due area mixes lists, and a parent must be in the same list
+		if above.header != "" || above.depth < depth || above.task.CalendarPath != selected.CalendarPath {
 			break
 		}
 		if above.depth == depth {

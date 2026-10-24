@@ -32,6 +32,7 @@
   `priority:`high|medium|low|none
 
   # Screen
+  Open tasks with a due date gather under `Due` at the top, soonest first
   100+ columns wide: the selected task shows on the right, `enter` edits it
   Mouse: click selects, again opens, `[ ]` toggles, the wheel scrolls
   Hold `shift` to select text with the mouse

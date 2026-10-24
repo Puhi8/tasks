@@ -4,10 +4,21 @@
   # Usage
   `tasks`                   open all lists
   `tasks --list NAME`       open the list with this name
-  `tasks --sync`            sync once and exit
   `tasks --config FILE`     use another config file (default ~/.config/tasks-tui/config.toml)
   `tasks --version`         print the installed version
   `tasks --help`            this help
+
+  # Commands
+  `tasks list [SEARCH]`     print the open tasks; SEARCH works like / in the app, e.g. `due:`today `tag:`work
+  `tasks lists`             print the list names
+  `tasks show TASK…`        print a task with all its subtasks and full descriptions, as a Markdown checklist
+  `tasks add TITLE`         add a task, `--due` DATE sets its due date (YYYY-MM-DD, today, tomorrow, +N)
+  `tasks done TASK…`        complete tasks; TASK is the id from tasks list or the whole title
+  `tasks delete TASK…`      delete tasks with their subtasks
+  `tasks sync`              sync once and exit
+  `tasks completion zsh`    print tab completion for zsh (or bash), load it with eval "$(tasks completion zsh)"
+  `--list NAME` limits a command to one list; add needs it when there are several.
+  Changes are uploaded right away unless sync_on_exit is off.
 
   # Config
   Without a [server] section the app runs local-only. See config.example.toml.

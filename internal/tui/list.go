@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -111,15 +112,23 @@ func (model *Model) refresh() {
 		}
 	}
 	model.rows = nil
+	var due [][]row
 	for _, calendar := range model.calendars {
 		tasks := byCalendar[calendar.Path]
 		if len(tasks) == 0 {
 			continue
 		}
-		if model.calendarPath == "" {
+		dated, rest := model.splitDue(model.tree(tasks))
+		due = append(due, dated...)
+		// a single list only needs its name once the due area sits above it
+		if len(rest) > 0 && (model.calendarPath == "" || len(dated) > 0) {
 			model.rows = append(model.rows, row{header: calendar.Name})
 		}
-		model.rows = append(model.rows, model.tree(tasks)...)
+		model.rows = append(model.rows, rest...)
+	}
+	if len(due) > 0 {
+		sort.SliceStable(due, func(i, j int) bool { return model.less(due[i][0].task, due[j][0].task) })
+		model.rows = slices.Concat([]row{{header: "Due"}}, slices.Concat(due...), model.rows)
 	}
 	// when the selected task disappeared (completed, filtered out) keep the cursor where it was
 	previous := model.cursor
@@ -190,6 +199,25 @@ func (model *Model) tree(tasks []task.Task) []row {
 	return rows
 }
 
+// splitDue takes the open top level tasks with a due date out of rows, each together with its subtasks and notes.
+func (model *Model) splitDue(rows []row) (due [][]row, rest []row) {
+	inDue := false
+	for _, item := range rows {
+		if item.isTask() && item.depth == 0 {
+			inDue = !model.manualSort && item.task.Due != nil && !item.task.Done()
+			if inDue {
+				due = append(due, nil)
+			}
+		}
+		if inDue {
+			due[len(due)-1] = append(due[len(due)-1], item)
+		} else {
+			rest = append(rest, item)
+		}
+	}
+	return due, rest
+}
+
 func (model *Model) less(first, second task.Task) bool {
 	if first.Done() != second.Done() {
 		return !first.Done()
@@ -202,14 +230,15 @@ func (model *Model) less(first, second task.Task) bool {
 			return *first.SortOrder < *second.SortOrder
 		}
 	} else {
-		if priorityRank(first.Priority) != priorityRank(second.Priority) {
-			return priorityRank(first.Priority) < priorityRank(second.Priority)
-		}
+		// a due date outranks any priority
 		if (first.Due == nil) != (second.Due == nil) {
 			return first.Due != nil
 		}
 		if first.Due != nil && !first.Due.Time.Equal(second.Due.Time) {
 			return first.Due.Time.Before(second.Due.Time)
+		}
+		if priorityRank(first.Priority) != priorityRank(second.Priority) {
+			return priorityRank(first.Priority) < priorityRank(second.Priority)
 		}
 	}
 	return strings.ToLower(first.Summary) < strings.ToLower(second.Summary)

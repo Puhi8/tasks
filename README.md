@@ -35,8 +35,23 @@ The password is never stored in the file: `password_command` prints it, for exam
 ```sh
 tasks              # open your tasks
 tasks --list Work  # open one list
-tasks --sync       # sync once and exit
+tasks sync         # sync once and exit
 ```
+
+It also works as a plain command, for scripts or a quick look:
+
+```sh
+tasks list due:today                           # filters work like the in-app search
+tasks add Buy milk --list Home --due tomorrow
+tasks show Website                             # a task with all subtasks and full descriptions
+tasks done a1b2c3d4                            # the id from tasks list, or the whole title
+```
+
+`tasks --help` lists every command. For tab completion of commands, lists and task ids, add `eval "$(tasks completion zsh)"` to `~/.zshrc` (after `compinit`), or `eval "$(tasks completion bash)"` to `~/.bashrc`.
+
+### AI agents
+
+[skills/project-tasks](skills/project-tasks/SKILL.md) is a skill for Claude Code and other agents that read `SKILL.md` files. It teaches the agent to use these commands, so "look at the task MyProject" makes it read that task with all its subtasks and descriptions, do the work and mark each finished item done. Install it by copying the folder into `~/.claude/skills/`.
 
 Press `?` in the app for all keys. The most used ones:
 

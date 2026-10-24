@@ -196,7 +196,7 @@ func (model *Model) openParentPicker(selected task.Task) {
 	siblings := model.calendarTasks(selected.CalendarPath)
 	items := []pickerItem{{label: "(no parent)", value: ""}}
 	for _, candidate := range siblings {
-		if candidate.UID != selected.UID && !task.WouldCycle(siblings, selected.UID, candidate.UID) {
+		if candidate.UID != selected.UID && !candidate.Done() && !task.WouldCycle(siblings, selected.UID, candidate.UID) {
 			items = append(items, pickerItem{label: candidate.Summary, value: candidate.UID})
 		}
 	}
