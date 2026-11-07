@@ -190,7 +190,7 @@ func (model *Model) find(word string) (task.Task, error) {
 }
 
 func (model *Model) completeFromCommand(selected task.Task) (string, error) {
-	edited, err := task.Complete(selected)
+	edited, err := model.complete(selected)
 	if err == nil {
 		_, err = model.applyAndSave(edited)
 	}

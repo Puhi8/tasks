@@ -50,7 +50,7 @@ func (model *Model) toggleCompleted(selected task.Task) {
 		edited.Status = task.NeedsAction
 	} else {
 		var err error
-		if edited, err = task.Complete(selected); err != nil {
+		if edited, err = model.complete(selected); err != nil {
 			model.message = err.Error()
 			return
 		}
@@ -58,6 +58,24 @@ func (model *Model) toggleCompleted(selected task.Task) {
 	if model.saveTask(edited) && !edited.Done() && !selected.Done() {
 		model.message = "repeating task moved to " + dateLabel(edited.Due, time.Now())
 	}
+}
+
+// complete finishes a task with all its open subtasks; a repeating task only moves to its next date, so its subtasks stay open.
+func (model *Model) complete(selected task.Task) (task.Task, error) {
+	edited, err := task.Complete(selected)
+	if err != nil || !edited.Done() {
+		return edited, err
+	}
+	for _, subtask := range task.Subtree(model.tasks, selected)[1:] {
+		if subtask.Done() {
+			continue
+		}
+		subtask.Status = task.Completed
+		if _, err := model.applyAndSave(subtask); err != nil {
+			return edited, err
+		}
+	}
+	return edited, nil
 }
 
 func (model *Model) deleteTask(selected task.Task) {

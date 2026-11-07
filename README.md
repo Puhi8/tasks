@@ -51,7 +51,7 @@ tasks done a1b2c3d4                            # the id from tasks list, or the 
 
 ### AI agents
 
-[skills/project-tasks](skills/project-tasks/SKILL.md) is a skill for Claude Code and other agents that read `SKILL.md` files. It teaches the agent to use these commands, so "look at the task MyProject" makes it read that task with all its subtasks and descriptions, do the work and mark each finished item done. Install it by copying the folder into `~/.claude/skills/`.
+[skills/project-tasks](skills/project-tasks/SKILL.md) is a skill for Claude Code and other agents that read `SKILL.md` files. It teaches the agent to use these commands, so "look at the task MyProject" makes it read that task with all its subtasks and descriptions, do the work and report back; the skill is read-only, so you stay the one who marks items done. Install it by copying the folder into `~/.claude/skills/`.
 
 Press `?` in the app for all keys. The most used ones:
 
